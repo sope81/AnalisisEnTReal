@@ -52,6 +52,7 @@ Precipitaciones en el momento actual
 	
     <script>
 function initMap() {
+
   var map = new google.maps.Map(document.getElementById('map'), {
   bindto: '#map',
     zoom: 11,
@@ -61,28 +62,51 @@ function initMap() {
   var trafficLayer = new google.maps.TrafficLayer();
   trafficLayer.setMap(map);
   
+  //mapa calor
   var map2 = new google.maps.Map(document.getElementById('map2'), {
     bindto: '#map2',
 	zoom: 11,
     center: new google.maps.LatLng(40.42156,-3.68232)
   });
   
+  //variables mapa calor
+  datopunto={};
+  puntos=[];
   
+   for (var i = 0; i < datat.length ; i++) {
+		  var location = new google.maps.LatLng(datat[i].coordenadas);
+		  weight=datat[i].intensidad;
+		  datopunto={location,weight};
+		  puntos.push(datopunto);
+        
+        }
+		console.log(puntos);
+		heatmap = new google.maps.visualization.HeatmapLayer({
+			data: puntos,
+			map: map2,
+			dissipating: true
+			//radious:20000
+		});
+      
   
-  
-  var map3 = new google.maps.Map(document.getElementById('map3'), {
+  //mapa contaminación
+    var map3 = new google.maps.Map(document.getElementById('map3'), {
     bindto: '#map3',
 	 zoom: 11,
      center: new google.maps.LatLng(40.4239,-3.7123), // Centrado por Madrid
      mapTypeId: 'terrain'
   });
+  
   for (var i = 0; i < datac.length; i++) {
 		
 		//console.log(data[i].HORA);
           var content = "Estación: " + datac[i].EST_NAME + "\n NOx: " + datac[i].HORA;
           var info = new google.maps.InfoWindow({content: content }); 
+		 
           var latLng = new google.maps.LatLng(datac[i].coordenadas);//.lat, data[i].coordenadas.lng);
-          var marker = new google.maps.Marker({
+            console.log(latLng);
+		  var marker = new google.maps.Marker({
+		  
             position: latLng,
             map: map3,
 			animation: google.maps.Animation.DROP,
@@ -97,8 +121,34 @@ function initMap() {
 
   
 }
+//datos mapa trafico
 
-//mapa Contaminación
+var map, heatmap;
+      
+      var datat=['data'];
+	  var xhrt = new XMLHttpRequest();
+
+      xhrt.open("GET", 'http://localhost:3000/trafico', true);
+
+        xhrt.onload = function (e) {
+         if (xhrt.readyState === 4) {
+            if (xhrt.status === 200) {
+			    
+                var data2 = JSON.parse(xhrt.responseText);
+				datat=data2;
+				//initialize()
+            } else {
+                console.error(xhrt.statusText);
+            }
+          }
+      };
+       xhrt.onerror = function (e) {
+        console.error(xhrt.statusText);
+       };
+       xhrt.send(null);
+
+
+//datos mapa Contaminación
 
       var map;
       
@@ -313,7 +363,8 @@ function initMap() {
     </script>
 	<script src="./d3-3.5.17/d3.min.js" charset="utf-8"></script>
 	<script src="./c3-0.4.11/c3.min.js" ></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5b33VjmTzNvaV8mZzn-NP8CukFPBaBhk&callback=initMap&signed_in=true" async defer>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5b33VjmTzNvaV8mZzn-NP8CukFPBaBhk&libraries=visualization,geometry&&callback=initMap&signed_in=true" async defer>
     </script>
   </body>
 </html>
+
