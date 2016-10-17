@@ -1,0 +1,146 @@
+<html>
+<head>
+    <link href="./c3-0.4.11/c3.css" rel="stylesheet" type="text/css">
+</head>
+<title>Informes Bici Madrid</title>
+<body>
+<b>Informe BiciMadrid medias de uso de cada estaci&#243;n, el gr&#225;fico inferior permite seleccionar datos</b>
+<div id="map" style="width:100%; height:400px; margin-left:5px;"></div>
+<div id="chart"></div>
+
+<script src="./d3-3.5.17/d3.min.js" charset="utf-8"></script>
+<script src="./c3-0.4.11/c3.min.js"></script>
+<script>
+//Mapa
+var map;
+      
+      var data=['data'];
+	  var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", 'http://localhost:3000/bicis', true);
+
+        xhr.onload = function (e) {
+         if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+			    
+                var data2 = JSON.parse(xhr.responseText);
+				data=data2
+				
+            } else {
+                console.error(xhr.statusText);
+            }
+          }
+      };
+       xhr.onerror = function (e) {
+        console.error(xhr.statusText);
+       };
+       xhr.send(null);
+	   
+	  
+      function initialize() {
+		
+		
+	   
+	 
+        // Creando un nuevo mapa con el API de Google
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 14,
+          center: new google.maps.LatLng(40.4239,-3.7123), // Centrado por Madrid
+          mapTypeId: 'terrain'
+        });
+      
+
+      // Recorre los datos y va dando de alta puntos en el mapa
+      // Enlace a las propiedades de la clase marker:
+    
+	  
+	       
+
+        for (var i = 0; i < data.length; i++) {
+		
+		console.log(data[i].HORA);
+          var content = "Estación: " + data[i]._id.Estacion + "\n Bicis Libres: " + data[i].free_bikes;
+          var info = new google.maps.InfoWindow({content: content }); 
+          var latLng = new google.maps.LatLng(data[i]._id.Lat,data[i]._id.Lng);//.lat, data[i].coordenadas.lng);
+          var marker = new google.maps.Marker({
+            position: latLng,
+            map: map,
+			animation: google.maps.Animation.DROP,
+            title: "Estación: " + data[i]._id.Estacion +": -Libres: "+ data[i].free_bikes+" -Huecos: "+data[i].empty_slots
+          });
+          marker.addListener('click', function() {
+            var i = info;
+            i.open(map, this);
+          });
+        }
+      }
+
+//Gráfico
+
+
+    function chart(datos) {
+
+            var convertedData = JSON.parse(datos);
+            var frees = ['free_bikes'];
+            var availables = ['empty_slots'];
+            var xaxis = ['x'];
+
+            convertedData.forEach(function (station, index) {
+              if (index < 100) {
+                xaxis.push(station._id.Estacion);
+                frees.push(station.free_bikes);
+                availables.push(station.empty_slots);
+              }
+            });
+
+            var chart = c3.generate({
+              data: {
+                x: 'x',
+                columns: [
+                  xaxis,
+                  frees,
+                  availables
+                ],
+                type: 'bar'
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  label: 'Address'
+                },
+                y: {
+                  label: {
+                    text: 'Amount'
+                  }
+                },
+              },
+			  
+			   subchart: {
+					show: true,
+					},
+            });
+    }
+
+    var xhr2 = new XMLHttpRequest();
+
+    xhr2.open("GET", 'http://localhost:3000/bicis', true);
+
+    xhr2.onload = function (e) {
+        if (xhr2.readyState === 4) {
+            if (xhr2.status === 200) {
+                chart(xhr2.responseText);
+            } else {
+                console.error(xhr2.statusText);
+            }
+        }
+    };
+    xhr2.onerror = function (e) {
+        console.error(xhr2.statusText);
+    };
+    xhr2.send(null);
+</script>
+</body>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5b33VjmTzNvaV8mZzn-NP8CukFPBaBhk&callback=initialize">
+    </script>
+</html>

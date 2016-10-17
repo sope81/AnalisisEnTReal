@@ -1,0 +1,343 @@
+<html>
+<head>
+    <link href="./c3-0.4.11/c3.css" rel="stylesheet" type="text/css">
+</head>
+<title>Informe Contaminación</title>
+<style>
+		.c3-ygrid-line line {
+				stroke: red;
+				}
+		.c3-ygrid-line.med line {
+				stroke: orange;
+			}
+    </style>
+
+<body>
+<b>Informe contaminaci&#243;n Madrid, detalles:</b>
+<div></div>
+ Datos NOx
+ <div id="chart1" style="width:90%; height:200px; margin-left:5px;"></div>
+ Datos NO2
+ <div id="chart2" style="width:90%; height:200px; margin-left:5px;"></div>
+ Datos SO2
+ <div id="chart3" style="width:90%; height:200px; margin-left:5px;"></div>
+ Datos Partículas PM2,5
+ <div id="chart4" style="width:90%; height:200px; margin-left:5px;"></div>
+  Datos Partículas PM10
+ <div id="chart5" style="width:90%; height:200px; margin-left:5px;"></div>
+
+<script src="./d3-3.5.17/d3.min.js" charset="utf-8"></script>
+<script src="./c3-0.4.11/c3.min.js"></script>
+<script>
+
+//gráfico NOx
+
+    function chart(data) {
+            var convertedData = JSON.parse(data);
+            var nox = ['NOx'];
+            var xaxis = ['x'];
+
+            convertedData.forEach(function (station, index) {
+              if (index < 100) {
+                xaxis.push(station.EST_NAME);
+                nox.push(station.HORA)
+              }
+            });
+
+            var chart = c3.generate({
+			bindto: '#chart1',
+              data: {
+                x: 'x',
+                columns: [
+                  xaxis,
+                  nox
+                ],
+                type: 'bar',
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  label: 'Estacion'
+                },
+                y: {
+                  label: {
+                    text: 'NOx'
+                  }
+                },
+              },
+			  grid: {
+					y: {
+						lines: [{value: 250, text: 'Limite Max Nox'},{value: 150, text: 'Limite Med Nox',class:'med'}]
+						}}  
+			  
+            });
+			
+    }
+//datos NOx
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", 'http://localhost:3000/AggNOx', true);
+
+    xhr.onload = function (e) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                chart(xhr.responseText);
+            } else {
+                console.error(xhr.statusText);
+            }
+        }
+    };
+    xhr.onerror = function (e) {
+        console.error(xhr.statusText);
+    };
+    xhr.send(null);
+	
+	
+	//gráfico NO2
+	function chart2(data) {
+            var convertedData = JSON.parse(data);
+            var no2 = ['NO2'];
+            var xaxis = ['x'];
+
+            convertedData.forEach(function (station, index) {
+              if (index < 100) {
+                xaxis.push(station.EST_NAME);
+                no2.push(station.HORA)
+              }
+            });
+
+            var chart2 = c3.generate({
+			bindto: '#chart2',
+              data: {
+                x: 'x',
+                columns: [
+                  xaxis,
+                  no2
+                ],
+                type: 'bar',
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  label: 'Estacion'
+                },
+                y: {
+                  label: {
+                    text: 'NO2'
+                  }
+                },
+              },
+			  grid: {
+					y: {
+						lines: [{value: 200, text: 'Limite Max NO2'},{value: 170, text: 'Limite Med NO2',class:'med'}]
+						}}  
+			  
+            });
+			
+    }
+//Datos NO2
+    var xhr2 = new XMLHttpRequest();
+
+    xhr2.open("GET", 'http://localhost:3000/AggNO2', true);
+
+    xhr2.onload = function (e) {
+        if (xhr2.readyState === 4) {
+            if (xhr2.status === 200) {
+                chart2(xhr2.responseText);
+            } else {
+                console.error(xhr2.statusText);
+            }
+        }
+    };
+    xhr2.onerror = function (e) {
+        console.error(xhr2.statusText);
+    };
+    xhr2.send(null);
+	
+//gráfico SO2
+	function chart3(data) {
+            var convertedData = JSON.parse(data);
+            var SO2 = ['SO2'];
+            var xaxis = ['x'];
+
+            convertedData.forEach(function (station, index) {
+              if (index < 100) {
+                xaxis.push(station.EST_NAME);
+                SO2.push(station.HORA)
+              }
+            });
+
+            var chart3 = c3.generate({
+			bindto: '#chart3',
+              data: {
+                x: 'x',
+                columns: [
+                  xaxis,
+                  SO2
+                ],
+                type: 'bar',
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  label: 'Estacion'
+                },
+                y: {
+                  label: {
+                    text: 'SO2'
+                  }
+                },
+              },
+			  grid: {
+					y: {
+						lines: [{value: 20, text: 'Limite Max SO2'},{value: 18, text: 'Limite Med SO2',class:'med'}]
+						}}  
+			  
+            });
+			
+    }
+//Datos SO2
+    var xhr3 = new XMLHttpRequest();
+
+    xhr3.open("GET", 'http://localhost:3000/AggSO2', true);
+
+    xhr3.onload = function (e) {
+        if (xhr3.readyState === 4) {
+            if (xhr3.status === 200) {
+                chart3(xhr3.responseText);
+            } else {
+                console.error(xhr3.statusText);
+            }
+        }
+    };
+    xhr3.onerror = function (e) {
+        console.error(xhr3.statusText);
+    };
+    xhr3.send(null);	
+	
+	
+	//gráfico PM25
+	function chart4(data) {
+            var convertedData = JSON.parse(data);
+            var PM25 = ['PM25'];
+            var xaxis = ['x'];
+
+            convertedData.forEach(function (station, index) {
+              if (index < 100) {
+                xaxis.push(station.EST_NAME);
+                PM25.push(station.HORA)
+              }
+            });
+
+            var chart4 = c3.generate({
+			bindto: '#chart4',
+              data: {
+                x: 'x',
+                columns: [
+                  xaxis,
+                  PM25
+                ],
+                type: 'bar',
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  label: 'Estacion'
+                },
+                y: {
+                  label: {
+                    text: 'PM25'
+                  }
+                },
+              },
+			  grid: {
+					y: {
+						lines: [{value: 25, text: 'Limite Max PM25'},{value: 20, text: 'Limite Med PM25',class:'med'}]
+						}}  
+			  
+            });
+			
+    }
+//Datos PM25
+    var xhr4 = new XMLHttpRequest();
+
+    xhr4.open("GET", 'http://localhost:3000/AggPM25', true);
+
+    xhr4.onload = function (e) {
+        if (xhr4.readyState === 4) {
+            if (xhr4.status === 200) {
+                chart4(xhr4.responseText);
+            } else {
+                console.error(xhr4.statusText);
+            }
+        }
+    };
+    xhr4.onerror = function (e) {
+        console.error(xhr4.statusText);
+    };
+    xhr4.send(null);
+	
+	
+//gráfico PM10
+	function chart5(data) {
+            var convertedData = JSON.parse(data);
+            var PM10 = ['PM10'];
+            var xaxis = ['x'];
+
+            convertedData.forEach(function (station, index) {
+              if (index < 100) {
+                xaxis.push(station.EST_NAME);
+                PM10.push(station.HORA)
+              }
+            });
+
+            var chart5 = c3.generate({
+			bindto: '#chart5',
+              data: {
+                x: 'x',
+                columns: [
+                  xaxis,
+                  PM10
+                ],
+                type: 'bar',
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  label: 'Estacion'
+                },
+                y: {
+                  label: {
+                    text: 'PM10'
+                  }
+                },
+              },
+			  grid: {
+					y: {
+						lines: [{value: 25, text: 'Limite Max PM10'},{value: 20, text: 'Limite Med PM10',class:'med'}]
+						}}  
+			  
+            });
+			
+    }
+//Datos PM10
+    var xhr5 = new XMLHttpRequest();
+
+    xhr5.open("GET", 'http://localhost:3000/AggPM10', true);
+
+    xhr5.onload = function (e) {
+        if (xhr5.readyState === 4) {
+            if (xhr5.status === 200) {
+                chart5(xhr5.responseText);
+            } else {
+                console.error(xhr5.statusText);
+            }
+        }
+    };
+    xhr5.onerror = function (e) {
+        console.error(xhr5.statusText);
+    };
+    xhr5.send(null);
+</script>
+</body>
+</html>

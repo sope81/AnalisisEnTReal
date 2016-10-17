@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <link href="./c3-0.4.11/c3.css" rel="stylesheet" type="text/css">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Estado actual Madrid</title>
+    
+  </head>
+<script>
+		console.log(5 + 6);
+	</script>
+
+  <body>
+ <b>Informe Inicial estado trafico y contaminaci&#243;n Madrid, detalles:</b>
+
+<!--Mapa que muestra el tráfico según Google-->
+Trafico segun Google
+    <div id="map" style="width:50%; height:400px; margin-left:5px;"></div>
+	
+<!--Mapa que muestra el tráfico según CCM-->
+Trafico segun Comunidad Madrid
+    <div id="map2" style="width:50%; height:400px; margin-left:5px;"></div>
+	
+<!--Mapa que muestra la contaminación según CCM-->
+Contaminaci&#243;n segun Comunidad Madrid
+<!--Boton para ir al detalle de la contaminación-->
+<form action="file:///C:/TFM/Informes/Definitivos/DetalleContaminacion.html" target="_blank">
+    <input type="submit" value="Detalle contaminación" />
+</form>
+    <div id="map3" style="width:50%; height:400px; margin-left:5px;"></div>
+	
+<!--Datos agregados BiciMad-->
+Uso de BiciMad en el momento actual
+<!--Boton para ir al detalle de BiciMad-->
+<form action="file:///C:/TFM/Informes/Definitivos/DetalleBiciMad.html" target="_blank">
+    <input type="submit" value="Detalle BiciMad" />
+</form>
+    <div id="chart1" style="width:25%; height:400px; margin-left:5px;"></div>
+	
+<!--Datos agregados Precipitaciones-->
+Precipitaciones en el momento actual
+<!--Boton para ir al detalle de BiciMad-->
+<form action="file:///C:/TFM/Informes/Definitivos/Precipitaciones.html" target="_blank">
+    <input type="submit" value="Detalle Precipitaciones" />
+</form>
+	
+    <div id="chart2" style="width:25%; height:200px; margin-left:5px;"></div>
+	
+	<div id="chart3" style="width:25%; height:200px; margin-left:5px;"></div>
+	<div id="chart4" style="width:25%; height:200px; margin-left:5px;"></div>
+	
+    <script>
+function initMap() {
+  var map = new google.maps.Map(document.getElementById('map'), {
+  bindto: '#map',
+    zoom: 11,
+    center: new google.maps.LatLng(40.42156,-3.68232)
+  });
+
+  var trafficLayer = new google.maps.TrafficLayer();
+  trafficLayer.setMap(map);
+  
+  var map2 = new google.maps.Map(document.getElementById('map2'), {
+    bindto: '#map2',
+	zoom: 11,
+    center: new google.maps.LatLng(40.42156,-3.68232)
+  });
+  
+  
+  
+  
+  var map3 = new google.maps.Map(document.getElementById('map3'), {
+    bindto: '#map3',
+	 zoom: 11,
+     center: new google.maps.LatLng(40.4239,-3.7123), // Centrado por Madrid
+     mapTypeId: 'terrain'
+  });
+  for (var i = 0; i < datac.length; i++) {
+		
+		//console.log(data[i].HORA);
+          var content = "Estación: " + datac[i].EST_NAME + "\n NOx: " + datac[i].HORA;
+          var info = new google.maps.InfoWindow({content: content }); 
+          var latLng = new google.maps.LatLng(datac[i].coordenadas);//.lat, data[i].coordenadas.lng);
+          var marker = new google.maps.Marker({
+            position: latLng,
+            map: map3,
+			animation: google.maps.Animation.DROP,
+            title: "Estación: " + datac[i].EST_NAME + "\n NOx: " + datac[i].HORA
+          });
+        
+        }
+
+  
+  
+  
+
+  
+}
+
+//mapa Contaminación
+
+      var map;
+      
+      var datac=['data'];
+	  var xhrc = new XMLHttpRequest();
+
+        xhrc.open("GET", 'http://localhost:3000/GeoAggNOx', true);
+
+        xhrc.onload = function (e) {
+         if (xhrc.readyState === 4) {
+            if (xhrc.status === 200) {
+			    
+                var data2 = JSON.parse(xhrc.responseText);
+				datac=data2
+				
+            } else {
+                console.error(xhrc.statusText);
+            }
+          }
+      };
+       xhrc.onerror = function (e) {
+        console.error(xhrc.statusText);
+       };
+       xhrc.send(null);
+	   
+	  
+      
+
+
+
+//gráfico BiciMad
+
+    function bicis(data) {
+
+            var convertedData = JSON.parse(data);
+            var frees = ['free_bikes'];
+            var availables = ['empty_slots'];
+            var xaxis = ['x'];
+
+            convertedData.forEach(function (station, index) {
+              if (index < 100) {
+                xaxis.push(station._id);
+                frees.push(station.free_bikes);
+                availables.push(station.empty_slots);
+              }
+            });
+
+            var bicis = c3.generate({
+			bindto: '#chart1',
+              data: {
+                x: 'x',
+                columns: [
+                  xaxis,
+                  frees,
+                  availables
+                ],
+                type: 'bar'
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  label: 'Address'
+                },
+                y: {
+                  label: {
+                    text: 'Amount'
+                  }
+                },
+              },
+			  
+			  
+            });
+    }
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", 'http://localhost:3000/totbicis', true);
+
+    xhr.onload = function (e) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                bicis(xhr.responseText);
+            } else {
+                console.error(xhr.statusText);
+            }
+        }
+    };
+    xhr.onerror = function (e) {
+        console.error(xhr.statusText);
+    };
+    xhr.send(null);
+	
+	//gráfico Precipitaciones
+
+    function preci(data) {
+
+            var convertedData = JSON.parse(data);
+            var temp = ['Temp'];
+            var VelViento = ['VelViento'];
+			var rachas=['Racha'];
+			var humedad= ['Humedad'];
+			var precipitacion=['Precipitacion']
+            var xaxis = ['x'];
+
+            convertedData.forEach(function (station, index) {
+               
+                xaxis.push(station._id);
+                temp.push(station.Temp);
+                VelViento.push(station.VelViento);
+				rachas.push(station.Racha);
+				humedad.push(station.Humedad);
+				precipitacion.push(station.Precipitacion)
+              
+            });
+            
+            var preci = c3.generate({
+			bindto: '#chart2',
+              data: {
+                x: 'x',
+                columns: [
+                  xaxis,
+                  //temp,
+                  humedad
+                ],
+                type: 'gauge'
+              },
+              axis: {
+                x: {
+                  type: 'Humedad',
+                  label: 'Address'
+                },
+                y: {
+                  label: {
+                    text: 'Amount'
+                  }
+                },
+              },
+			  title:{text:'Humedad'}
+			  
+            });
+			
+			var precip = c3.generate({
+			bindto: '#chart3',
+              data: {
+                
+                columns: [
+                 
+                  temp
+                ],
+                type: 'bar'
+              },
+			   
+              axis: {
+                x: {
+                  type: 'Temp C',
+                  label: 'Madrid'
+                },
+                y: {
+                  label: {
+                    text: 'Temp C'
+                  }
+                },
+              },
+			  
+			  
+            });
+			
+			var precip2 = c3.generate({
+			bindto: '#chart4',
+              data: {
+              
+                columns: [
+                  
+                  precipitacion
+                ],
+                type: 'bar'
+              },
+              axis: {
+                x: {
+                  type: 'mm',
+                  label: 'Lluvias'
+                },
+                y: {
+                  label: {
+                    text: 'Precipitacion mm'
+                  }
+                },
+              },
+			  
+			  
+            });
+    }
+
+    var xhr2 = new XMLHttpRequest();
+
+    xhr2.open("GET", 'http://localhost:3000/precipitacionesAgg', true);
+
+    xhr2.onload = function (e) {
+        if (xhr2.readyState === 4) {
+            if (xhr2.status === 200) {
+                preci(xhr2.responseText);
+            } else {
+                console.error(xhr2.statusText);
+            }
+        }
+    };
+    xhr2.onerror = function (e) {
+        console.error(xhr2.statusText);
+    };
+    xhr2.send(null);
+
+    </script>
+	<script src="./d3-3.5.17/d3.min.js" charset="utf-8"></script>
+	<script src="./c3-0.4.11/c3.min.js" ></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5b33VjmTzNvaV8mZzn-NP8CukFPBaBhk&callback=initMap&signed_in=true" async defer>
+    </script>
+  </body>
+</html>

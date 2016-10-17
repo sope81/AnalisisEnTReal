@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+           #map {
+        height: 400px;
+        width: 100%;
+       }
+    </style>
+	<script>
+		console.log(5 + 6);
+	</script>
+    <script>
+     
+   	 var map;
+      
+      var data=['data'];
+	  var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", 'http://localhost:3000/GeoAggNOx', true);
+
+        xhr.onload = function (e) {
+         if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+			    
+                var data2 = JSON.parse(xhr.responseText);
+				data=data2
+				
+            } else {
+                console.error(xhr.statusText);
+            }
+          }
+      };
+       xhr.onerror = function (e) {
+        console.error(xhr.statusText);
+       };
+       xhr.send(null);
+	   
+	  
+      function initialize() {
+		//console.log(data);
+        // Creando un nuevo mapa con el API de Google
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 11,
+          center: new google.maps.LatLng(40.4239,-3.7123), // Centrado por Madrid
+          mapTypeId: 'terrain'
+        });
+      
+
+      // Recorre los datos y va dando de alta puntos en el mapa
+      // Enlace a las propiedades de la clase marker:
+            
+
+        for (var i = 0; i < data.length; i++) {
+		
+		//console.log(data[i].HORA);
+          var content = "Estación: " + data[i].EST_NAME + "\n NOx: " + data[i].HORA;
+          var info = new google.maps.InfoWindow({content: content }); 
+          var latLng = new google.maps.LatLng(data[i].coordenadas);//.lat, data[i].coordenadas.lng);
+          var marker = new google.maps.Marker({
+            position: latLng,
+            map: map,
+			animation: google.maps.Animation.DROP,
+            title: "Estación: " + data[i].EST_NAME + "\n NOx: " + data[i].HORA
+          });
+          marker.addListener('click', function() {
+            var i = info;
+            i.open(map, this);
+          });
+        }
+      }
+	  
+	  
+	
+	
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5b33VjmTzNvaV8mZzn-NP8CukFPBaBhk&callback=initialize">
+    </script>
+  </body>
+</html>

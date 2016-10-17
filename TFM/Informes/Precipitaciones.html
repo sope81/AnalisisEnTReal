@@ -1,0 +1,83 @@
+<html>
+<head>
+    <link href="./c3-0.4.11/c3.css" rel="stylesheet" type="text/css">
+</head>
+<title>Informes Climatologia</title>
+<body>
+<b>Informe Climatologia por cada estaci&#243;n</b>
+<div id="chart" style="width:95%; height:500px; margin-left:5px;"></div>
+
+<script src="./d3-3.5.17/d3.min.js" charset="utf-8"></script>
+<script src="./c3-0.4.11/c3.min.js"></script>
+<script>
+
+    function chart(data) {
+
+            var convertedData = JSON.parse(data);
+            var Temp = ['Temp_C'];
+            var Precip = ['Precipitacion_mm'];
+			var Humedad = ['Humedad_perc'];
+            var Velocidad = ['VelViento_km_h'];
+            var xaxis = ['Estacion'];
+
+            convertedData.forEach(function (station, index) {
+              if (index < 100) {
+                xaxis.push(station.Estacion);
+                Temp.push(station.Temp_C);
+                Precip.push(station.Precipitacion_mm);
+				Humedad.push(station.Humedad_perc);
+                Velocidad.push(station.VelViento_km_h);
+              }
+            });
+
+            var chart = c3.generate({
+              data: {
+                x: 'Estacion',
+                columns: [
+                  xaxis,
+                  Temp,
+                  Precip,
+				  Humedad,
+				  Velocidad
+                ],
+                type: 'bar'
+              },
+              axis: {
+                x: {
+                  type: 'category',
+                  label: 'Address'
+                },
+                y: {
+                  label: {
+                    text: 'Amount'
+                  }
+                },
+              },
+			  
+			   subchart: {
+					show: true,
+					},
+			    
+            });
+    }
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", 'http://localhost:3000/precipitacionesAll', true);
+
+    xhr.onload = function (e) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                chart(xhr.responseText);
+            } else {
+                console.error(xhr.statusText);
+            }
+        }
+    };
+    xhr.onerror = function (e) {
+        console.error(xhr.statusText);
+    };
+    xhr.send(null);
+</script>
+</body>
+</html>
